@@ -1,5 +1,3 @@
-import { ClerkProvider, SignedIn, UserButton } from '@clerk/nextjs'
-
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
@@ -26,20 +24,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          suppressHydrationWarning={true}
-        >
-          <header>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
+      >
+        {children}
+      </body>
+    </html>
   )
 }
