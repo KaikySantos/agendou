@@ -1,10 +1,18 @@
 import Image from 'next/image'
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getServerSession()
+
+  if (session) {
+    redirect('/calendar')
+  }
+
   return (
     <div className="flex">
       <Image

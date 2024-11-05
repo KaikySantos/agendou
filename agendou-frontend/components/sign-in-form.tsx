@@ -1,6 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import { useForm } from 'react-hook-form'
 import zod from 'zod'
@@ -23,6 +25,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { signIn } from 'next-auth/react'
+import { SymbolIcon } from '@radix-ui/react-icons'
+import { useToast } from '@/hooks/use-toast'
 
 const formSchema = zod.object({
   email: zod.string().email('Digite um e-mail válido'),
@@ -30,6 +35,11 @@ const formSchema = zod.object({
 })
 
 export function SignInForm() {
+  const { toast } = useToast()
+  const router = useRouter()
+
+  const [isLoading, setIsLoading] = useState(false)
+  
   const form = useForm<zod.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,7 +49,26 @@ export function SignInForm() {
   })
 
   async function onSubmit(data: zod.infer<typeof formSchema>) {
-    console.log(data)
+    setIsLoading(true)
+
+    const result = await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false
+    })
+
+    if (result?.error) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: result.error,
+      })
+      setIsLoading(false)
+      return
+    }
+
+    router.replace('/calendar')
+    setIsLoading(false)
   }
 
   return (
@@ -84,8 +113,12 @@ export function SignInForm() {
                   )}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button disabled={isLoading} type="submit" className="w-full">
+                {!isLoading ? (
+                  <span>Login</span>
+                ) : (
+                  <SymbolIcon className='animate-spin' />
+                )}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
