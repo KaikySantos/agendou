@@ -12,7 +12,7 @@ const authOptions: NextAuthOptions = {
         password: { label: 'password', type: 'password' },
       },
 
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         try {
           const response = await api.post(
             `${process.env.NEXT_PUBLIC_API_URL}/sessions`,

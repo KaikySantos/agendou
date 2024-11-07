@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button";
-import { SymbolIcon } from "@radix-ui/react-icons";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Button } from '@/components/ui/button'
+import { SymbolIcon } from '@radix-ui/react-icons'
+import { signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function Calendar() {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,7 +15,7 @@ export default function Calendar() {
     setIsLoading(true)
 
     signOut({
-      redirect: false
+      redirect: false,
     })
 
     setIsLoading(false)
@@ -29,7 +29,7 @@ export default function Calendar() {
         {!isLoading ? (
           <span>Sair</span>
         ) : (
-          <SymbolIcon className='animate-spin' />
+          <SymbolIcon className="animate-spin" />
         )}
       </Button>
     </>

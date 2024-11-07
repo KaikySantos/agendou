@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth"
-import { signOut, useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
-import { ReactNode } from "react"
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
+import { ReactNode } from 'react'
 
 interface PrivateLayoutProps {
   children: ReactNode
@@ -14,9 +13,5 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
     redirect('/auth/sign-in')
   }
 
-  return (
-    <div>
-      {children}
-    </div>
-  )
+  return <div>{children}</div>
 }
