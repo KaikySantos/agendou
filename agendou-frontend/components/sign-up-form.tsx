@@ -25,11 +25,24 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
-import { ArrowRightIcon } from '@radix-ui/react-icons'
+import { ArrowRightIcon, SymbolIcon } from '@radix-ui/react-icons'
 import { ArrowLeft } from 'lucide-react'
+import { api } from '@/lib/axios'
+import { useToast } from '@/hooks/use-toast'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
 
 const formSchema = zod
   .object({
+    name: zod
+      .string()
+      .min(2, 'O nome deve ter pelo menos 3 caracteres')
+      .max(50, 'O nome deve ter no máximo 50 caracteres')
+      .regex(
+        /^[A-Za-zÀ-ÖØ-öø-ÿ ]+$/,
+        'O nome deve conter apenas letras e espaços',
+      ),
     email: zod.string().email('Email inválido'),
     password: zod.string().min(6, 'A senha precisa ter no mínimo 6 caracteres'),
     confirmPassword: zod.string(),
@@ -40,11 +53,16 @@ const formSchema = zod
   })
 
 export function SignUpForm() {
-  const [step, setStep] = useState<'email' | 'password'>('email')
+  const { toast } = useToast()
+  const router = useRouter()
+
+  const [step, setStep] = useState<'name' | 'email' | 'password'>('name')
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<zod.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -52,24 +70,64 @@ export function SignUpForm() {
   })
 
   async function onSubmit(data: zod.infer<typeof formSchema>) {
-    console.log(data)
+    setIsLoading(true)
+
+    try {
+      await api.post('/users', data)
+
+      await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+
+      router.replace('/calendar')
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: error.response?.data.message,
+        })
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: 'Não foi possível fazer o registro',
+        })
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   async function nextStep() {
-    const emailIsValid = await form.trigger('email')
-    if (emailIsValid) {
-      setStep('password')
+    if (step === 'name') {
+      const nameIsValid = await form.trigger('name')
+      if (nameIsValid) {
+        setStep('email')
+      }
+    } else if (step === 'email') {
+      const emailIsValid = await form.trigger('email')
+      if (emailIsValid) {
+        setStep('password')
+      }
     }
   }
 
   function backStep() {
-    form.setValue('password', '')
-    form.setValue('confirmPassword', '')
-    setStep('email')
+    if (step === 'password') {
+      form.setValue('password', '')
+      form.setValue('confirmPassword', '')
+      setStep('email')
+    } else if (step === 'email') {
+      form.setValue('email', '')
+      setStep('name')
+    }
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLFormElement>) {
-    if (event.key === 'Enter' && step === 'email') {
+    if (event.key === 'Enter' && (step === 'name' || step === 'email')) {
       event.preventDefault()
       nextStep()
     }
@@ -80,6 +138,10 @@ export function SignUpForm() {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Create an account</CardTitle>
         <CardDescription>
+          {step === 'name' && (
+            <span>Enter your name below to create your account</span>
+          )}
+
           {step === 'email' && (
             <span>Enter your email below to create your account</span>
           )}
@@ -96,16 +158,15 @@ export function SignUpForm() {
             onKeyDown={handleKeyDown}
           >
             <div className="grid gap-4">
-              {step === 'email' && (
+              {step === 'name' && (
                 <>
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="m@example.com" {...field} />
+                          <Input placeholder="Name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -115,6 +176,33 @@ export function SignUpForm() {
                     Next
                     <ArrowRightIcon />
                   </Button>
+                </>
+              )}
+
+              {step === 'email' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex gap-4">
+                    <Button type="button" variant="ghost" onClick={backStep}>
+                      <ArrowLeft />
+                      Return
+                    </Button>
+                    <Button type="button" className="w-full" onClick={nextStep}>
+                      Next
+                      <ArrowRightIcon />
+                    </Button>
+                  </div>
                 </>
               )}
 
@@ -153,7 +241,11 @@ export function SignUpForm() {
                         Return
                       </Button>
                       <Button type="submit" className="w-full">
-                        Sign Up
+                        {!isLoading ? (
+                          <span>Sign Up</span>
+                        ) : (
+                          <SymbolIcon className="animate-spin" />
+                        )}
                       </Button>
                     </div>
                   </>

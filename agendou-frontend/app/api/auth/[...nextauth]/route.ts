@@ -1,24 +1,27 @@
-import { api } from "@/lib/axios"
-import { AxiosError } from "axios"
-import NextAuth, { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
+import { api } from '@/lib/axios'
+import { AxiosError } from 'axios'
+import NextAuth, { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 
 const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
         email: { label: 'email', type: 'text' },
-        password: { label: 'password', type: 'password' }
+        password: { label: 'password', type: 'password' },
       },
 
       async authorize(credentials, req) {
         try {
-          const response = await api.post(`${process.env.NEXT_PUBLIC_API_URL}/sessions`, {
-            email: credentials?.email,
-            password: credentials?.password
-          })
-          
+          const response = await api.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/sessions`,
+            {
+              email: credentials?.email,
+              password: credentials?.password,
+            },
+          )
+
           const user = response.data
 
           if (user) {
@@ -29,12 +32,12 @@ const authOptions: NextAuthOptions = {
             throw new Error(error.response?.data.message)
           }
         }
-      }
-    })
+      },
+    }),
   ],
 
   pages: {
-    signIn: '/auth/sign-in'
+    signIn: '/auth/sign-in',
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -48,7 +51,7 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-  }
+  },
 }
 
 const handler = NextAuth(authOptions)

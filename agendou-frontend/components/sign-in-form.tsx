@@ -39,7 +39,7 @@ export function SignInForm() {
   const router = useRouter()
 
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const form = useForm<zod.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,13 +54,13 @@ export function SignInForm() {
     const result = await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirect: false
+      redirect: false,
     })
 
     if (result?.error) {
       toast({
-        variant: "destructive",
-        title: "Erro",
+        variant: 'destructive',
+        title: 'Erro',
         description: result.error,
       })
       setIsLoading(false)
@@ -117,7 +117,7 @@ export function SignInForm() {
                 {!isLoading ? (
                   <span>Login</span>
                 ) : (
-                  <SymbolIcon className='animate-spin' />
+                  <SymbolIcon className="animate-spin" />
                 )}
               </Button>
             </div>
