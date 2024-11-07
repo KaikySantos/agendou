@@ -1,4 +1,10 @@
+import cors from '@fastify/cors'
+
 import { app } from './app'
+
+app.register(cors, {
+  // ...
+})
 
 app
   .listen({
