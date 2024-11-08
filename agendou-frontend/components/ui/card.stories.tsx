@@ -19,6 +19,31 @@ const meta: Meta<typeof Card> = {
   parameters: {
     layout: 'centered',
   },
+  decorators: [
+    (Story) => {
+      return (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Create schedule</CardTitle>
+              <CardDescription>Create a new schedule</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Label>Date</Label>
+              <Input type="date" />
+            </CardContent>
+            <CardFooter className="gap-4">
+              <Button variant="ghost">Cancel</Button>
+              <Button>Create</Button>
+            </CardFooter>
+          </Card>
+          <div className="hidden">
+            <Story />
+          </div>
+        </>
+      )
+    },
+  ],
   render: (args) => (
     <Card {...args}>
       <CardHeader>
@@ -29,26 +54,6 @@ const meta: Meta<typeof Card> = {
       <CardFooter>Footer</CardFooter>
     </Card>
   ),
-  decorators: [
-    () => {
-      return (
-        <Card>
-          <CardHeader>
-            <CardTitle>Create schedule</CardTitle>
-            <CardDescription>Create a new schedule</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Label>Date</Label>
-            <Input type="date" />
-          </CardContent>
-          <CardFooter className="gap-4">
-            <Button variant="ghost">Cancel</Button>
-            <Button>Create</Button>
-          </CardFooter>
-        </Card>
-      )
-    },
-  ],
 }
 
 export default meta
