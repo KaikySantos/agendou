@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 
-import { Toaster } from '@/components/ui/toaster'
+import { Toaster } from '@/components/providers/toaster'
 
 import NextAuthSessionProvider from '@/components/providers/session-provider'
 
